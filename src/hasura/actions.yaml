@@ -1,0 +1,46 @@
+# Hasura Actions Configuration
+# This file shows how to configure the sendMessage action in Hasura
+
+actions:
+  - name: sendMessage
+    definition:
+      kind: synchronous
+      handler: https://your-n8n-webhook-url.com/webhook/sendMessage
+      forward_client_headers: true
+    permissions:
+      - role: user
+    comment: Sends a message to the chatbot and returns the response
+
+# GraphQL Schema for the action
+custom_types:
+  scalars: []
+  input_objects:
+    - name: SendMessageInput
+      fields:
+        - name: chatId
+          type: uuid!
+        - name: message
+          type: String!
+  objects:
+    - name: SendMessageOutput
+      fields:
+        - name: success
+          type: Boolean!
+        - name: message
+          type: String!
+        - name: response
+          type: String
+
+# The action definition in GraphQL schema:
+#
+# type Mutation {
+#   sendMessage(chatId: uuid!, message: String!): SendMessageOutput
+# }
+#
+# This action will:
+# 1. Receive the user's message and chat ID
+# 2. Forward to n8n webhook with authentication headers
+# 3. n8n validates user owns the chat
+# 4. n8n calls OpenRouter API
+# 5. n8n saves response back to database
+# 6. Returns success status and response
